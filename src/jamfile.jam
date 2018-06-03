@@ -1,0 +1,12 @@
+import boost ;
+
+boost.use-project ;
+
+import testing ;
+
+unit-test strong_typedef_test
+    : *_test.cpp
+    : <use>/boost//headers
+    ;
+
+always strong_typedef_test ;
