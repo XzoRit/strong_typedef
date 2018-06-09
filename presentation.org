@@ -9,638 +9,83 @@
 
 #+REVEAL_THEME: black
 #+REVEAL_TRANS: none
+#+REVEAL_DEFAULT_FRAG_STYLE: appear
 
-* Strong Typedef
+* strong typedef
 
-* 4 different types of computation
-- runtime
-- type-level computations
-- heterogeneous computations
-- constexpr
-#+BEGIN_NOTES
-- examples: [[file:~/projects/programming/c++/boost/libs/hana/doc/html/index.html#tutorial-introduction-quadrants][boost.hana computational quadrants]]
-#+END_NOTES
+* usage
+#+BEGIN_SRC C++
+Location meetingRoom("F05", "Moislling", 211, 2);
+#+END_SRC
 
-* generic programming
-- algorithms on unknown types
+* usage
+#+BEGIN_SRC C++
+Location meetingRoom("Reval", "Sylt", 1, 2);
+#+END_SRC
 
-* problems
-- safety
-- performance
-- memory
+* usage
+#+BEGIN_SRC C++
+Appointment bookRoom(
+  int hours, int minutes,
+  string building, string roomName,
+  int roomNo, int floor)
+{
+  //...
+  
+  Location meetingRoom(building, roomName, roomNo, floor);
 
-* safety
+  //...
+}
+#+END_SRC
+
+* declaration
+#+BEGIN_SRC C++
+Location(string building
+  , string pointOfCare
+  , int floor
+  , int bed);
+#+END_SRC
+
+* usage
+#+BEGIN_SRC C++
+Appointment bookRoom(
+  int hours, int minutes,
+  string building, string roomName,
+  int roomNo, int floor)
+{
+  
+Location meetingRoom(building=building
+  , pointOfcare=roomName
+  , floor=floor
+  , bed=roomNo);
+
+}
+#+END_SRC
+
+* usage
+#+BEGIN_SRC C++
+m_appEnv->init(false, NULL, true, NULL);
+#+END_SRC
+
+* problem
+#+BEGIN_SRC C++
+raiseAlarm(false, false);
+getEnabledSelected(false, true, false);
+setAllowOff(false, false);
+changeSwitch(false, false, true);
+m_failureConfig(false, false, false, false);
+#+END_SRC
+
+* goal
+being able to reason about code locally
+
+* universal design guideline
+interfaces should be easy to use correctly and hard to use incorrectly
+
+* error checking
 an error at ... is better than
+#+ATTR_REVEAL: :frag (appear)
 - compile time
 - link time
 - object construction
 - object use
-
-** example
-unsafe
-#+BEGIN_SRC C++
-Location(string building, string pointOfCare, int floor, int bed);
-#+END_SRC
-safe
-#+BEGIN_SRC C++
-const Location loc(Building("A"),
-                   PointOfCare("Intensive"),
-                   Floor(101),
-                   Bed(31));
-#+END_SRC
-
-** named parameter
-#+BEGIN_SRC C++
-class NamedParameter
-{
-public:
-    explicit NamedParameter(const string& value)
-        : m_value(value) {}
-    operator string() const
-    { return m_value; }
-private:
-    string m_value;
-};
-#+END_SRC
-#+BEGIN_NOTES
-- tags for parameter which wrap the same type
-- examples:
-   - boost.chrono.duration
-#+END_NOTES
-
-* deduction
-
-** int to string
-#+BEGIN_SRC C++
-map<int, string> m;
-#+END_SRC
-#+BEGIN_NOTES
-- insert key-value-pair
-#+END_NOTES
-
-** template argument deduction
-#+BEGIN_SRC C++
-m.insert(make_pair(0, "Null"));
-#+END_SRC
-#+BEGIN_NOTES
-only works for functions
-#+END_NOTES
-
-** generator pattern
-#+BEGIN_SRC C++
-template<class T>
-class TemplateClass
-{
-  TemplateClass(T t);
-};
-
-template<class T>
-TemplateClass<T> make_t(T t)
-{
-  return TemplateClass<T>(t);
-}
-#+END_SRC
-
-** examples
-- [[http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique][make_unique]]
-- [[http://en.cppreference.com/w/cpp/memory/shared_ptr/make_shared][make_shared]]
-- [[http://en.cppreference.com/w/cpp/utility/functional/bind][bind]]
-
-* compute
-
-** compile-time computations
-#+BEGIN_SRC C++
-TEST_CASE("MaxSize at compile-time")
-{
-    CHECK(MaxSize<int, char>::value == sizeof(int));
-    CHECK(MaxSize<int, long long>::value == sizeof(long long));
-}
-#+END_SRC
-#+BEGIN_NOTES
-- implement MaxSize
-- how to check correct implementations at compile-time?
-#+END_NOTES
-
-** template specialization
-#+BEGIN_SRC C++
-template<bool x>
-struct StaticAssert;
-
-template<>
-struct StaticAssert<true>
-{
-  static const int value = 1;
-};
-#+END_SRC
-#+BEGIN_SRC C++
-STATIC_ASSERT(
-  MaxSize<int, char>::value == sizeof(int),
-  SizeOfIntShallBeMax);
-#+END_SRC
-#+BEGIN_NOTES
-- compile-time-if
-- pattern-matching
-- static if in D
-#+END_NOTES
-
-** partial template specialization
-struct/class only
-#+BEGIN_SRC C++
-template<bool C, typename T1, typename T2>
-struct if_c
-{
-    typedef T1 type;
-};
-
-template<typename T1, typename T2>
-struct if_c<false,T1,T2>
-{
-    typedef T2 type;
-};
-#+END_SRC
-#+BEGIN_NOTES
-- implement MaxSize in terms of boost.mpl.if_c
-#+END_NOTES
-
-** boost.mpl.min_max
-#+BEGIN_SRC C++
-template<class N1, class N2>
-struct min : if_< less<N1,N2>,N1,N2 >
-{};
-
-template<class N1, class N2>
-struct max : if_< less<N1,N2>,N2,N1 >
-{};
-#+END_SRC
-#+BEGIN_NOTES
-- implement MaxSize in terms of boost.mpl.max
-- mpl.sizeof_ is needed
-#+END_NOTES
-
-** recursive templates
-#+BEGIN_SRC C++
-template<int fac>
-struct factorial
-{
-    static const int value = fac * factorial<fac - 1>::value;
-};
-
-template<>
-struct factorial<0>
-{
-    static const int value = 1;
-};
-#+END_SRC
-#+BEGIN_NOTES
-- factorial<7> is more expressive than 5040
-#+END_NOTES
-
-** compile-time pow
-#+BEGIN_SRC C++
-BOOST_MPL_ASSERT_RELATION(
-    (pow<2, 0>::value), ==, 1);
-
-BOOST_MPL_ASSERT_RELATION(
-    (pow<2, 3>::value), ==, 8);
-
-BOOST_MPL_ASSERT_RELATION(
-    (pow<2, 10>::value), ==, 1024);
-#+END_SRC
-
-** constexpr
-#+BEGIN_SRC C++
-namespace const_expr_11
-{
-constexpr int pow(int val, int exp)
-{
-    return exp ? val * pow(val, exp - 1) : 1;
-}
-}
-
-namespace const_expr_14
-{
-constexpr int pow(int val, int exp)
-{
-    int result = 1;
-    for(; exp; --exp) result *= val;
-    return result;
-}
-}
-#+END_SRC
-#+BEGIN_NOTES
-- [[http://en.cppreference.com/w/cpp/language/constexpr][c++-standard constexpr]]
-- implement constexpr version of factorial
-#+END_NOTES
-
-** compile-time algorithm
-#+BEGIN_SRC C++
-BOOST_MPL_ASSERT_RELATION(
-    (MaxSize<
-        mpl::vector< char, int, long long > >::value),
-        ==,
-        sizeof(long long));
-
-BOOST_MPL_ASSERT_RELATION(
-    (MaxSize<
-        mpl::vector< char, int, double, long > >::value),
-        ==,
-        sizeof(double));
-#+END_SRC
-#+BEGIN_NOTES
-- first workout the runtime algorithm
-- then implement the compiletime version
-#+END_NOTES
-
-* compile-time type computation
-
-** add_pointer
-#+BEGIN_SRC C++
-static_assert(
-    is_same<
-    int*,
-    add_pointer<int>::type
-    >::value, "add_pointer of int is int*");
-#+END_SRC
-#+BEGIN_NOTES
-- implement add_pointer
-#+END_NOTES
-
-** add_pointer &
-#+BEGIN_SRC C++
-static_assert(
-    is_same<
-    int*,
-    add_pointer<int&>::type
-    >::value, "");
-#+END_SRC
-#+BEGIN_NOTES
-- add_pointer shall work with T&
-#+END_NOTES
-
-** add_pointer to sequence
-#+BEGIN_SRC C++
-static_assert(
-    mpl::equal<
-    mpl::vector<char*,short*,int*,long*,float*,double*>,
-    add_pointer<mpl::vector<char,short,int,long,float,double>>::type
->::value, "");
-#+END_SRC
-
-** type_traits
-- #include <[[http://en.cppreference.com/w/cpp/header/type_traits][type_traits]]>
-
-* tag dispatching
-
-** advance
-#+BEGIN_SRC C++
-TEST_CASE("advance for vector")
-{
-    std::vector<int> v{0,1,2,3,4,5,6,7,8,9};
-    auto it = std::cbegin(v);
-    advance(it, 0);
-    CHECK((*it) == 0);
-    advance(it, 3);
-    CHECK((*it) == 3);
-    advance(it, -2);
-    CHECK((*it) == 1);
-}
-#+END_SRC
-#+BEGIN_NOTES
-- implement for vector, list and forward_list
-#+END_NOTES
-
-** iterator_traits - iterator_category
-#+BEGIN_SRC C++
-template <class _Iter>
-struct iterator_traits
-{
-    typedef typename _Iter::difference_type   difference_type;
-    typedef typename _Iter::value_type        value_type;
-    typedef typename _Iter::pointer           pointer;
-    typedef typename _Iter::reference         reference;
-    typedef typename _Iter::iterator_category iterator_category;
-};
-
-struct input_iterator_tag {};
-struct output_iterator_tag {};
-struct forward_iterator_tag       : public input_iterator_tag {};
-struct bidirectional_iterator_tag : public forward_iterator_tag {};
-struct random_access_iterator_tag : public bidirectional_iterator_tag {};
-#+END_SRC
-#+BEGIN_NOTES
-- implement advance using iterator_traits
-- What about c-array? Do they work with advance? Why?
-#+END_NOTES
-
-** why traits?
-- No member-functions?
-  - Scott Meyers "Prefer non friend non member functions over member functions"
-  - interface bloat e.g. distance, next, prev, ...
-- boost.type_trait and <type_traits>
-
-* policy based design
-
-** SafePtr
-#+BEGIN_SRC C++
-template<class T,
-         class CheckingPolicy = CheckForNull<T>,
-         class FallbackPolicy = ThrowException<T>>
-class SafePtr {
-    SafePtr(T* ptr) : m_ptr(ptr) {}
-    ~SafePtr() { delete m_ptr; }
-    T& operator*() const { return *get(); }
-    T* operator->() const { return get(); }
-    static T* get(T*& ptr) {
-    if(!CheckingPolicy::isValid(ptr)) FallbackPolicy::apply(ptr);
-    return ptr;
-  }
-};
-#+END_SRC
-#+BEGIN_SRC C++
-SafePtr<int> sp(new int(179));
-CHECK((*sp) == 179);
-
-SafePtr<std::string> sp(new std::string("string"));
-CHECK(sp->size() == 6);
-
-SafePtr<std::string> sp(NULL);
-CHECK_THROWS_AS(void(sp->size() == 6), std::runtime_error);
-#+END_SRC
-#+BEGIN_NOTES
-- on dereferencing SafePtr
-   - use checking policy to check if ptr is valid
-   - use a fallback policy to provide defaults in case ptr is invalid
-- examples:
-  - LockingPolicy (look at Core::NonLockingQ vs LockingQ)
-  - LoggingPolicy
-  - compiletime GoF StrategyPattern
-#+END_NOTES
-
-* CRTP
-Curious Reoccurring Template Pattern
-#+BEGIN_SRC C++
-template <class T> 
-class Base {
-    static void staticFunc() {
-        /*...*/ T::staticSubFunc(); /*...*/
-    }
-    void interface() {
-        /*...*/ static_cast<T*>(this)->implementation(); /*...*/
-    }
-};
-
-class Derived : public Base<Derived> {
-    void implementation();
-    static void staticSubFunc();
-};
-#+END_SRC
-#+BEGIN_NOTES
-- Static polymorphism without virtual
-- Inject behavior
-- mixins
-#+END_NOTES
-
-** clone
-#+BEGIN_SRC C++
-class Cloneable {
-    virtual ~Cloneable() {};
-    virtual Cloneable *clone() const = 0;
-};
-
-class IAmCopyCloneable
-: public CopyCloneable<IAmCopyCloneable>
-{ /*...*/ };
-
-TEST_CASE("cloneable") {
-    IAmCopyCloneable one;
-    Cloneable* clone = one.clone();
-    IAmCopyCloneable* iAmClone =
-	boost::polymorphic_downcast<IAmCopyCloneable*>(clone);
-    CHECK(one.m_value == iAmClone->m_value);
-}
-#+END_SRC
-#+BEGIN_NOTES
-- explain with cloneable shapes
-#+END_NOTES
-
-** examples
-- static/compile-time polymorphism
-- enable_shared_from_this
-#+BEGIN_NOTES
-- http://en.cppreference.com/w/cpp/memory/enable_shared_from_this
-#+END_NOTES
-
-* SFINAE
-Substitution Failure Is Not An Error
-#+BEGIN_SRC C++
-long multiply(int i, int j) { return i * j; }
-
-template <class T>
-typename T::multiplication_result multiply(T t1, T t2)
-{
-  return t1 * t2;
-}
-
-multiply(4,5);
-#+END_SRC
-#+BEGIN_NOTES
-- useful for implementing type traits
-#+END_NOTES
-
-** is_array
-#+BEGIN_SRC C++
-template<class T>
-struct is_array : std::false_type
-{};
-
-template<class T>
-struct is_array<T[]> : std::true_type
-{};
-
-template<class T, std::size_t N>
-struct is_array<T[N]> : std::true_type
-{};
-#+END_SRC
-
-** enable_if
-#+BEGIN_SRC C++
-template <bool B, class T = void>
-struct enable_if_c {
-  typedef T type;
-};
-
-template <class T>
-struct enable_if_c<false, T>
-{};
-
-template <class Cond, class T = void> 
-struct enable_if : public enable_if_c<Cond::value, T>
-{};
-#+END_SRC
-#+BEGIN_NOTES
-- conventions are
-  - value
-  - type
-- type_traits + enable_if = compiletime-introspection
-- disable_if is available too
-#+END_NOTES
-
-** copy_n
-#+BEGIN_SRC C++
-template<class Container>
-"enable if Container is array"
-copy_n(const Container& source, Container& target, std::size_t count) {
-  using value_type = decltype(*std::begin(source));
-  std::memcpy(target, source, sizeof(value_type) * count);
-}
-#+END_SRC
-#+BEGIN_SRC C++
-template<class Container>
-"disable if container is array"
-copy_n(const Container& source, Container& target, std::size_t count) {
-  auto b(std::begin(source));
-  auto e(std::next(b, count));
-  for(; b != e; ++b) target.push_back(*b);
-}
-#+END_SRC
-#+BEGIN_NOTES
-- explain 3 approaches
-  - enable_if in return type
-  - enable_if as default parameter
-  - impl with overload on true and false_type
-#+END_NOTES
-
-** examples
-- HSM::OutPort::send()
-- [[https://github.com/datosh/ConfigReader/blob/master/ConfigReader/ConfigReader.h][config_library]]
-- c++14-library [[http://www.boost.org/doc/libs/1_61_0/libs/hana/doc/html/index.html][boost.hana]]
-  - makes compiletime-introspection useable
-  - fuses boost.mpl and boost.fusion
-
-* Type Erasure
-vector<int> == vector<int, MyAllocator>
-
-vector<int> != vector<int, MyAllocator>
-
-** boost.any
-#+BEGIN_SRC plantuml :file boost_any.png
-skinparam monochrome false
-skinparam backgroundcolor Brown
-skinparam DefaultFontName Courier
-skinparam RoundCorner 20
-skinparam DefaultFontSize 20
-skinparam DefaultFontColor White
-
-skinparam class {
-      ArrowColor Green
-      ArrowFontStyle Bold
-
-      AttributeFontColor White
-      AttributeFontStyle Bold
-      AttributeIconSize 0
-
-      ArrowColor Black
-      BackgroundColor Black
-      BorderColor Brown
-      FontColor White
-      FontStyle Bold
-}
-
-class any {
-      +any<ValueType>(const ValueType& value)
-      : content(new holder<ValueType>(value) {}
-      --
-      -placeholder* content
-}
-
-interface placeholder {
-      +{abstract} type_info    type () const
-      +{abstract} placeholder* clone() const
-}
-
-class holder<ValueType> {
-      +type_info    type () const
-      +placeholder* clone() const
-      --
-      -ValueType held
-}
-
-placeholder <|.. holder
-any         o--  placeholder : content
-
-together {
-      class any
-      interface placeholder
-}
-
-any -[hidden]> placeholder
-#+END_SRC
-
-#+RESULTS:
-[[file:boost_any.png]]
-
-#+BEGIN_NOTES
-- Show implementation of boost.any
-#+END_NOTES
-
-** V2::SafePtr
-#+BEGIN_SRC C++
-struct Tester {
-  int counter = 0;
-  void operator()(const SafePtr<std::string>&) {
-    ++counter;
-  }
-};
-
-SafePtr<std::string> sp1(
-  NULL, CheckForNull<std::string>(), ThrowException<std::string>());
-SafePtr<std::string> sp2(
-  NULL, CheckForNull<std::string>(), DefaultConstructed<std::string>());
-
-Tester tester;
-tester(sp1);
-tester(sp2);
-CHECK(tester.counter == 2);
-#+END_SRC
-
-** example:
-- [[http://en.cppreference.com/w/cpp/memory/shared_ptr/shared_ptr][shared_ptr]] vs. [[http://en.cppreference.com/w/cpp/memory/unique_ptr][unique_ptr]]
-- [[http://en.cppreference.com/w/cpp/utility/functional/function][function<>]]
-
-** polymorphism is a detail
-- value-based-polymorphism
-
-* compile time - runtime
-- boost.fusion
-  - tuples
-  - views
-  - algorithms
-  - fusion - MPL - STL
-
-** distance between two points
-
-* Resources
-- https://en.wikibooks.org/wiki/More_C%2B%2B_Idioms
-- http://metaporky.blogspot.de/2014/07/introduction-to-c-metaprogramming-part-1.html
-- https://www.youtube.com/watch?v=dyHWVQE3Oo4
-- https://www.youtube.com/watch?v=9TFV2JxX7L0
-- https://www.youtube.com/watch?v=urshrBatNo4
-- https://www.youtube.com/watch?v=6V73Q7ULFi0
-- https://akrzemi1.wordpress.com/2015/11/19/overload-resolution/ 
-
-* TODO Expression Templates
-** TODO boost.xpressive
-** TODO boost.spirit
-
-* TODO Error messages at compile-time
-** TODO static_assert
-** TODO ostream-operator of optional<T>
-
-* TODO Concepts
-- look at boost.concepts
-- look at concepts-lite for c++17
-
-* TODO Variadic Template Arguments
-
-* TODO decltype
-
