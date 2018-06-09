@@ -107,3 +107,6 @@ an error at ... is better than
 - link time
 - object construction
 - object use
+
+* never
+[[https://heeris.id.au/2013/this-is-why-you-shouldnt-interrupt-a-programmer/][interrupt programmer]]
