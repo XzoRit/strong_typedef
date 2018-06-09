@@ -76,6 +76,24 @@ changeSwitch(false, false, true);
 m_failureConfig(false, false, false, false);
 #+END_SRC
 
+* ctors
+#+BEGIN_SRC C++
+TimeZone(string posixTzString);
+TimeZone(string ianaTzString);
+#+END_SRC
+
+* process
+#+BEGIN_SRC C++
+run(false, true);
+run(-99.99, +99.99);
+run(vec.data(), vec.size());
+#+END_SRC
+
+* process
+#+BEGIN_SRC C++
+run(bool, bool);
+#+END_SRC
+
 * goal
 being able to reason about code locally
 
