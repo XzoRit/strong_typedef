@@ -13,86 +13,59 @@
 
 * strong typedef
 
-* usage
+* better API
+- safer
+- more expressive
+- faster
+
+* motivation
 #+BEGIN_SRC C++
-Location meetingRoom("F05", "Moislling", 211, 2);
-#+END_SRC
+m_appEnv->init(NULL, NULL, NULL);
 
-* usage
-#+BEGIN_SRC C++
-Location meetingRoom("Reval", "Sylt", 1, 2);
-#+END_SRC
-
-* usage
-#+BEGIN_SRC C++
-Appointment bookRoom(
-  int hours, int minutes,
-  string building, string roomName,
-  int roomNo, int floor)
-{
-  //...
-  
-  Location meetingRoom(building, roomName, roomNo, floor);
-
-  //...
-}
-#+END_SRC
-
-* declaration
-#+BEGIN_SRC C++
-Location(string building
-  , string pointOfCare
-  , int floor
-  , int bed);
-#+END_SRC
-
-* usage
-#+BEGIN_SRC C++
-Appointment bookRoom(
-  int hours, int minutes,
-  string building, string roomName,
-  int roomNo, int floor)
-{
-  
-Location meetingRoom(building=building
-  , pointOfcare=roomName
-  , floor=floor
-  , bed=roomNo);
-
-}
-#+END_SRC
-
-* usage
-#+BEGIN_SRC C++
-m_appEnv->init(false, NULL, true, NULL);
-#+END_SRC
-
-* problem
-#+BEGIN_SRC C++
 raiseAlarm(false, false);
 getEnabledSelected(false, true, false);
 setAllowOff(false, false);
 changeSwitch(false, false, true);
 m_failureConfig(false, false, false, false);
+
+ProcessDescription p =
+{
+    {1200,  5, 256000,     3, 100, 50},
+    {3600, 23,     32, 32000, 120, 10}
+};
 #+END_SRC
 
-* ctors
-#+BEGIN_SRC C++
-TimeZone(string posixTzString);
-TimeZone(string ianaTzString);
-#+END_SRC
+* problem
+too many parameters of same type
+(too many == two)
 
-* process
+* motivation
 #+BEGIN_SRC C++
 run(false, true);
 run(-99.99, +99.99);
 run(vec.data(), vec.size());
 #+END_SRC
 
-* process
+* problem
 #+BEGIN_SRC C++
 run(bool, bool);
 #+END_SRC
+implicit conversions
+
+* motivation
+#+BEGIN_SRC C++
+TimeZone(string posixTzString);
+TimeZone(string ianaTzString);
+#+END_SRC
+
+* problem
+same storage type but different semantic
+
+* solution
+lookup declaration
+
+* never
+[[https://heeris.id.au/2013/this-is-why-you-shouldnt-interrupt-a-programmer/][interrupt programmer]]
 
 * goal
 being able to reason about code locally
@@ -108,5 +81,55 @@ an error at ... is better than
 - object construction
 - object use
 
-* never
-[[https://heeris.id.au/2013/this-is-why-you-shouldnt-interrupt-a-programmer/][interrupt programmer]]
+* solution
+use the typesystem
+
+* trash
+** usage
+#+BEGIN_SRC C++
+Location meetingRoom("F05", "Moislling", 211, 2);
+#+END_SRC
+
+** usage
+#+BEGIN_SRC C++
+Location meetingRoom("Reval", "Sylt", 1, 2);
+#+END_SRC
+
+** usage
+#+BEGIN_SRC C++
+Appointment bookRoom(
+  int hours, int minutes,
+  string building, string roomName,
+  int roomNo, int floor)
+{
+  //...
+  
+  Location meetingRoom(building, roomName, roomNo, floor);
+
+  //...
+}
+#+END_SRC
+
+** declaration
+#+BEGIN_SRC C++
+Location(string building
+  , string pointOfCare
+  , int floor
+  , int bed);
+#+END_SRC
+
+** usage
+#+BEGIN_SRC C++
+Appointment bookRoom(
+  int hours, int minutes,
+  string building, string roomName,
+  int roomNo, int floor)
+{
+  
+Location meetingRoom(building=building
+  , pointOfCare=roomName
+  , floor=floor
+  , bed=roomNo);
+
+}
+#+END_SRC
