@@ -53,6 +53,7 @@ run(bool, bool);
 implicit conversions
 
 * motivation
+ctor
 #+BEGIN_SRC C++
 TimeZone(string posixTzString);
 TimeZone(string ianaTzString);
@@ -83,6 +84,54 @@ an error at ... is better than
 
 * solution
 use the typesystem
+
+* types
+#+BEGIN_SRC C++
+class IanaTzString
+{
+    IanaTzString(const string& value) : m_value(value) {}
+    string get() { return m_value; }
+    string m_value;
+};
+
+class PosixTzString
+{
+    PosixTzString(const string& value) : m_value(value) {}
+    string get() { return m_value; }
+    string m_value;
+};
+
+TimeZone(PosixTzString posixTzString);
+TimeZone(IanaTzString  ianaTzString);
+#+END_SRC
+
+* types
+#+BEGIN_SRC C++
+class Resetable
+{
+    Resetable(bool value) : m_value(value) {}
+    bool get() { return m_value; }
+    bool m_value;
+};
+
+class MakeDebugLogEntry
+{
+    MakeDebugLogEntry(bool value) : m_value(value) {}
+    bool get() { return m_value; }
+    bool m_value;
+};
+
+raiseAlarm(Resetable(false), MakeDebugLogEntry(false));
+#+END_SRC
+
+* generic
+#+BEGIN_SRC C++
+typedef StrongTypedef<string, struct IanaTzStringTag > IanaTzString;
+typedef StrongTypedef<string, struct PosixTzStringTag> PosixTzString;
+
+typedef StrongTypedef<bool, struct ResetableTag        > Resetable;
+typedef StrongTypedef<bool, struct MakeDebugLogEntryTag> MakeDebugLogEntry;
+#+END_SRC
 
 * trash
 ** usage
