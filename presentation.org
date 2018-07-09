@@ -20,27 +20,6 @@
 
 * motivation
 #+BEGIN_SRC C++
-m_appEnv->init(NULL, NULL, NULL);
-
-raiseAlarm(false, false);
-getEnabledSelected(false, true, false);
-setAllowOff(false, false);
-changeSwitch(false, false, true);
-m_failureConfig(false, false, false, false);
-
-ProcessDescription p =
-{
-    {1200,  5, 256000,     3, 100, 50},
-    {3600, 23,     32, 32000, 120, 10}
-};
-#+END_SRC
-
-* problem
-too many parameters of same type
-(too many == two)
-
-* motivation
-#+BEGIN_SRC C++
 run(false, true);
 run(-99.99, +99.99);
 run(vec.data(), vec.size());
@@ -61,6 +40,28 @@ TimeZone(string ianaTzString);
 
 * problem
 same storage type but different semantic
+
+* motivation
+#+BEGIN_SRC C++
+m_appEnv->init(NULL, NULL, NULL);
+
+raiseAlarm(false, false);
+getEnabledSelected(false, true, false);
+setAllowOff(false, false);
+changeSwitch(false, false, true);
+m_failureConfig(false, false, false, false);
+
+Descriptions descs =
+{
+    {1200,  5, 256000,     3, 100, 50},
+    {3600, 23,     32, 32000, 120, 10}
+    {0   ,  0,      0,     0,   0,  0}
+};
+#+END_SRC
+
+* problem
+too many parameters of same type
+(too many == two)
 
 * solution
 lookup declaration
