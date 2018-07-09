@@ -125,6 +125,27 @@ class MakeDebugLogEntry
 raiseAlarm(Resetable(false), MakeDebugLogEntry(false));
 #+END_SRC
 
+* boring
+- tedious
+- no fun
+- too much to write
+- tedious
+- ...
+
+* solution
+let the compiler do the work for us
+
+* types
+#+BEGIN_SRC C++
+template<class T, class Tag>
+class StongTypedef
+{
+    StrongTypedef(T value) : m_value(value) {}
+    T get() { return m_value; }
+    T m_value;
+};
+#+END_SRC
+
 * generic
 #+BEGIN_SRC C++
 typedef StrongTypedef<string, struct IanaTzStringTag > IanaTzString;
