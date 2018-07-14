@@ -141,15 +141,31 @@ class MakeDebugLogEntry
 raiseAlarm(Resetable(false), MakeDebugLogEntry(false));
 #+END_SRC
 
+* types
+#+BEGIN_SRC C++
+class ErrorCode
+{
+    ErrorCode(int value) : m_value(value) {}
+    int get() { return m_value; }
+    int m_value;
+};
+
+const ErrorCode FatalFailure(117);
+
+ErrorCode a(FatalFailure);
+a += 5; // compile error
+a %= 3; // compile error
+#+END_SRC
+
 * boring
-- tedious
-- no fun
 - too much to write
+- no fun
 - tedious
-- ...
+- do not have time for that
+- your excuse here
 
 * solution
-let the compiler do the work for us
+let the compiler do the boring work for us
 
 * types
 #+BEGIN_SRC C++
