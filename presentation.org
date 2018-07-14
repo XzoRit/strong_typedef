@@ -187,6 +187,15 @@ typedef StrongTypedef<bool, struct ResetableTag        > Resetable;
 typedef StrongTypedef<bool, struct MakeDebugLogEntryTag> MakeDebugLogEntry;
 #+END_SRC
 
+* operators
+#+BEGIN_SRC C++
+typedef StrongTypedef<string, struct IanaTzStringTag > IanaTzString;
+typedef StrongTypedef<string, struct PosixTzStringTag> PosixTzString;
+
+typedef StrongTypedef<bool, struct ResetableTag        > Resetable;
+typedef StrongTypedef<bool, struct MakeDebugLogEntryTag> MakeDebugLogEntry;
+#+END_SRC
+
 * trash
 ** usage
 #+BEGIN_SRC C++
