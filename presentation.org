@@ -43,13 +43,29 @@ same storage type but different semantic
 
 * motivation
 #+BEGIN_SRC C++
-m_appEnv->init(NULL, NULL, NULL);
+typedef int ErrorCode;
+#+END_SRC
+
+* problem
+#+BEGIN_SRC C++
+ErrorCode a(FatalFailure);
+a += 5;
+a %= 3;
+// ...
+#+END_SRC
+- typedef does not define a new type
+- API is too big
+
+* motivation
+#+BEGIN_SRC C++
+m_appEnv->init(NULL, true, NULL);
 
 raiseAlarm(false, false);
-getEnabledSelected(false, true, false);
 setAllowOff(false, false);
-changeSwitch(false, false, true);
-m_failureConfig(false, false, false, false);
+
+checkTimeout(5000, 3);
+
+EXPECT_EQ(foo(), "bar");
 
 Descriptions descs =
 {
